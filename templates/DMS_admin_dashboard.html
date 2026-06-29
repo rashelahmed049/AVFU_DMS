@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>Activity Logs</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='admin_dashboard.css') }}">
+</head>
+
+<body>
+
+<div class="navbar">
+
+    <div>
+        📊 Activity Logs
+    </div>
+
+    <div>
+        {{ user }}
+    </div>
+
+</div>
+
+<div class="main">
+
+    <div class="top-bar">
+
+        <a href="/dashboard" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            Dashboard
+        </a>
+
+        <h2>Activity Logs</h2>
+
+    </div>
+
+    <!-- ================= FILTER SECTION ================= -->
+	<form action="/activity" method="GET">
+
+<div class="filter-card">
+
+    <div class="filter-grid">
+
+        <!-- User -->
+        <div class="filter-group">
+
+            <label>User</label>
+
+            <input
+                type="text"
+                name="user"
+                list="userEmails"
+                placeholder="Search user email...">
+
+            <datalist id="userEmails">
+                {% for email in users %}
+                <option value="{{ email }}">
+                {% endfor %}
+            </datalist>
+
+        </div>
+
+        <!-- Action -->
+        <div class="filter-group">
+
+            <label>Action</label>
+
+            <select name="action">
+
+                <option value="">All Actions</option>
+                <option value="LOGIN">LOGIN</option>
+                <option value="LOGOUT">LOGOUT</option>
+                <option value="UPLOAD_FILE">UPLOAD_FILE</option>
+                <option value="DOWNLOAD_FILE">DOWNLOAD_FILE</option>
+                <option value="DELETE_FILE">DELETE_FILE</option>
+                <option value="CREATE_FOLDER">CREATE_FOLDER</option>
+                <option value="RENAME">RENAME</option>
+                <option value="VIEW_FILE">VIEW_FILE</option>
+
+            </select>
+
+        </div>
+
+        <!-- From -->
+        <div class="filter-group">
+
+            <label>From</label>
+
+            <input type="date" name="from_date">
+
+        </div>
+
+        <!-- To -->
+        <div class="filter-group">
+
+            <label>To</label>
+
+            <input type="date" name="to_date">
+
+        </div>
+
+        <!-- Filename -->
+        <div class="filter-group filename-group">
+
+            <label>Filename</label>
+
+            <input
+                type="text"
+                name="filename"
+                placeholder="Search filename...">
+
+        </div>
+
+    </div>
+
+    <div class="filter-buttons">
+
+        <button type="submit" class="apply-btn">
+            Apply Filters
+        </button>
+
+        <a href="/activity" class="clear-btn">
+            Clear Filter
+        </a>
+
+    </div>
+
+</div>
+
+</form>
+
+    <!-- ================= TABLE ================= -->
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>User Email</th>
+                    <th>Action</th>
+                    <th>Filename</th>
+                    <th>Timestamp</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for log in logs %}
+
+                <tr>
+
+                    <td>{{ log[0] }}</td>
+                    <td>{{ log[1] }}</td>
+                    <td>{{ log[2] }}</td>
+                    <td>{{ log[3] }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

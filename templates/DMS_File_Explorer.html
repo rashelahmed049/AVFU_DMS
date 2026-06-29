@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVFU Document Management System</title>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+
+    <div class="logo">
+        📁 <span class="brand-title">AVFU CVSc FACULTY DMS (Document Management System)</span>
+    </div>
+
+    <div class="right-nav">
+        <i class="fa-solid fa-circle-user user-icon"></i>
+
+        <div class="username">
+            {{ user }}
+        </div>
+
+        <!-- Admin Login -->
+        <a href="#" class="admin-btn" onclick="openAdminModal()">
+			<i class="fa-solid fa-user-shield"></i>
+			Admin
+		</a>
+
+        <a href="/logout" class="logout-btn">
+            Logout
+        </a>
+    </div>
+
+</div>
+
+<div class="main">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+
+        <a href="/dashboard">Root</a>
+
+        {% if path %}
+
+            {% set parts = path.split('/') %}
+            {% set current = '' %}
+
+            {% for part in parts %}
+
+                {% set current = current + ('' if current == '' else '/') + part %}
+
+                /
+                <a href="/dashboard?path={{ current }}">
+                    {{ part }}
+                </a>
+
+            {% endfor %}
+
+        {% endif %}
+
+    </div>
+
+    <!-- BACK BUTTON -->
+    {% if path %}
+
+        {% set parent = path.rsplit('/',1)[0] if '/' in path else '' %}
+
+        <a href="/dashboard?path={{ parent }}"
+           class="back-btn">
+            ← Back
+        </a>
+
+    {% endif %}
+
+    <!-- CREATE / UPLOAD -->
+    <div class="action-row">
+
+        <div class="card">
+
+            <h3>Create Folder</h3>
+
+            <form action="/create_folder" method="post">
+
+                <input type="text" name="folder_name" placeholder="Folder Name" required>
+
+                <input type="hidden" name="path" value="{{ path }}">
+
+                <button type="submit">Create</button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h3>Upload File</h3>
+
+            <form action="/upload" method="post" enctype="multipart/form-data">
+
+                <input type="file" name="file" multiple required>
+
+                <br><br>
+
+                <input type="hidden" name="path" value="{{ path }}">
+
+                <button type="submit">Upload</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- FILE LIST -->
+    <div class="file-table">
+
+        {% for item in items %}
+
+        <div class="file-row">
+
+            <div class="file-left">
+
+                {% if item.is_dir %}
+
+                    <span class="folder">📁</span>
+
+                    <a href="/dashboard?path={{ (path ~ '/' ~ item.name).replace('\\','/') }}">
+                        {{ item.name }}
+                    </a>
+
+                {% else %}
+
+                    <span class="file">📄</span>
+
+                    {{ item.name }}
+
+                {% endif %}
+
+            </div>
+
+            <div class="file-actions">
+
+                {% if not item.is_dir %}
+				<a href="/view?path={{ path }}&file={{ item.name }}"
+				   class="action-btn view-btn"
+				   title="View">
+					<i class="fa-solid fa-eye"></i>
+				</a>
+				{% endif %}
+
+                <a href="#" onclick="renameFile('{{ item.name }}')"
+				   class="action-btn rename-btn"
+				   title="Rename">
+					<i class="fa-solid fa-pen-to-square"></i>
+				</a>
+
+				{% if item.is_dir %}
+				<a href="/download_folder?path={{ path }}&folder={{ item.name }}"
+				   class="action-btn download-btn"
+				   title="Download Folder">
+					<i class="fa-solid fa-download"></i>
+				</a>
+				{% else %}
+				<a href="/download?path={{ path }}&file={{ item.name }}"
+				   class="action-btn download-btn"
+				   title="Download File">
+					<i class="fa-solid fa-download"></i>
+				</a>
+				{% endif %}
+  
+
+                <a href="/delete?path={{ path }}&file={{ item.name }}" 
+				   class="delete-icon"
+				   title="Delete">
+					<i class="fa-solid fa-trash-can"></i>
+				</a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- RENAME FORM -->
+<form id="renameForm"
+      method="post"
+      action="/rename"
+      style="display:none;">
+
+    <input type="hidden" name="path" value="{{ path }}">
+    <input type="hidden" name="old_name" id="old_name">
+    <input type="hidden" name="new_name" id="new_name">
+
+</form>
+
+<script>
+
+function renameFile(oldName){
+
+    let newName = prompt("Enter new name:", oldName);
+
+    if(!newName){
+        return;
+    }
+
+    document.getElementById("old_name").value = oldName;
+    document.getElementById("new_name").value = newName;
+
+    document.getElementById("renameForm").submit();
+}
+
+</script>
+
+<!-- Admin Login Modal -->
+<div id="adminModal" class="modal">
+
+    <div class="modal-content">
+
+        <span class="close" onclick="closeAdminModal()">&times;</span>
+
+        <h2>Administrator Login</h2>
+
+        <form action="/admin-login" method="POST">
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Admin email"
+                required>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required>
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+
+function openAdminModal(){
+    document.getElementById("adminModal").style.display="block";
+}
+
+function closeAdminModal(){
+    document.getElementById("adminModal").style.display="none";
+}
+
+window.onclick=function(event){
+    let modal=document.getElementById("adminModal");
+
+    if(event.target==modal){
+        modal.style.display="none";
+    }
+}
+
+</script>
+</body>
+</html>
