@@ -1,0 +1,19 @@
+Import python commands to test in cmd console
+
+To check if Python is active & running currently
+command:	tasklist | findstr python
+example output:
+
+		python.exe                    7164 Console                    1      2,892 K
+		python.exe                    6432 Console                    1     15,636 K
+		python.exe                   15568 Console                    1      3,128 K
+		python.exe                   15588 Console                    1     38,872 K
+
+To kill the python process currently running
+command: taskkill /F /IM python.exe
+example output:
+
+		SUCCESS: The process "python.exe" with PID 7164 has been terminated.
+		SUCCESS: The process "python.exe" with PID 6432 has been terminated.
+		SUCCESS: The process "python.exe" with PID 15568 has been terminated.
+		SUCCESS: The process "python.exe" with PID 15588 has been terminated.
